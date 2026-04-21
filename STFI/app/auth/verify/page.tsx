@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { setSessionToken } from '@/lib/auth'
 
-export default function VerifyMagicLink() {
+function VerifyContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying')
@@ -37,7 +37,6 @@ export default function VerifyMagicLink() {
         setStatus('success')
         setMessage('Link verified! Redirecting to your workbook...')
 
-        // Redirect to workbook after 2 seconds
         setTimeout(() => {
           router.push('/workbook')
         }, 2000)
@@ -100,5 +99,13 @@ export default function VerifyMagicLink() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function VerifyMagicLink() {
+  return (
+    <Suspense>
+      <VerifyContent />
+    </Suspense>
   )
 }
