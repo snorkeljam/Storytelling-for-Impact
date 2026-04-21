@@ -167,41 +167,24 @@
             font-size: 1.3rem;
         }
 
-        .rise-module-btn {
+        .rise-module-link {
             display: inline-block;
             background-color: #E66C5C;
             color: #FFFFFF;
             padding: 0.75rem 1.5rem;
             border-radius: 4px;
-            border: none;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
+            text-decoration: none;
             font-weight: 600;
-            cursor: pointer;
             transition: background-color 0.3s ease;
             margin-top: 1rem;
         }
 
-        .rise-module-btn:hover {
+        .rise-module-link:hover {
             background-color: #d45a4a;
         }
 
-        .rise-module-btn.open {
-            background-color: #1F2A44;
-        }
-
-        .rise-embed-container {
-            margin-top: 1rem;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 2px solid #D1D1D1;
-        }
-
-        .rise-embed-container iframe {
-            display: block;
-            width: 100%;
-            height: 640px;
-            border: none;
+        .rise-module-link::after {
+            content: " ↗";
         }
 
         .workbook-activity {
@@ -366,30 +349,7 @@
             '4.2': 'https://share.articulate.com/wD-IaoZCjgZddATO6woni'
         };
 
-        function RiseEmbed({ moduleId }) {
-            const [open, setOpen] = useState(false);
-            return (
-                <div style={{marginTop: '1rem'}}>
-                    <button
-                        className={`rise-module-btn ${open ? 'open' : ''}`}
-                        onClick={() => setOpen(prev => !prev)}
-                    >
-                        {open ? '▲ Close Module' : '▶ Launch Module'}
-                    </button>
-                    {open && (
-                        <div className="rise-embed-container">
-                            <iframe
-                                src={riseModules[moduleId]}
-                                title={`Module ${moduleId}`}
-                                allowFullScreen
-                            />
-                        </div>
-                    )}
-                </div>
-            );
-        }
-
-        function App() {
+function App() {
             const [openLessons, setOpenLessons] = useState({});
             const [visitedLessons, setVisitedLessons] = useState(new Set());
             const [formData, setFormData] = useState({});
@@ -495,7 +455,7 @@
                                             <strong> strategic</strong> storytelling and invites you to consider which of these outcomes 
                                             matters most to your current goals.
                                         </p>
-                                        <RiseEmbed moduleId="1.2" />
+                                        <a href={riseModules['1.2']} target="_blank" rel="noopener noreferrer" className="rise-module-link">Launch Module</a>
                                     </div>
 
                                     {/* 1.3 Rise Module */}
@@ -506,7 +466,7 @@
                                             or experiences of others. In this lesson, you'll look more closely at the ways stories shape 
                                             our understanding of ourselves.
                                         </p>
-                                        <RiseEmbed moduleId="1.3" />
+                                        <a href={riseModules['1.3']} target="_blank" rel="noopener noreferrer" className="rise-module-link">Launch Module</a>
                                     </div>
 
                                     {/* 1.4 Rise Module + Workbook */}
@@ -517,7 +477,7 @@
                                             to tell. In this lesson, you'll review prompts, reflect on your goals, and choose a story idea 
                                             that you'll carry through the rest of the course.
                                         </p>
-                                        <RiseEmbed moduleId="1.4" />
+                                        <a href={riseModules['1.4']} target="_blank" rel="noopener noreferrer" className="rise-module-link">Launch Module</a>
                                         <div className="workbook-activity">
                                             <h4>📝 Workbook Activity</h4>
                                             <div className="disclaimer">
@@ -569,7 +529,7 @@
                                             you'll discover what happens in the brain when we hear a story and why narrative activates attention, 
                                             memory, empathy, and trust in ways that data alone cannot.
                                         </p>
-                                        <RiseEmbed moduleId="2.1" />
+                                        <a href={riseModules['2.1']} target="_blank" rel="noopener noreferrer" className="rise-module-link">Launch Module</a>
                                     </div>
 
                                     {/* 2.2 Rise Module */}
@@ -579,7 +539,7 @@
                                             Now that you understand how stories affect the brain, this lesson will walk you through four 
                                             techniques to apply that knowledge and make your stories more engaging and persuasive.
                                         </p>
-                                        <RiseEmbed moduleId="2.2" />
+                                        <a href={riseModules['2.2']} target="_blank" rel="noopener noreferrer" className="rise-module-link">Launch Module</a>
                                     </div>
 
                                     {/* 2.3 Workbook-only */}
@@ -628,7 +588,7 @@
                                             How do you know if a story is working? In this lesson, you'll analyze real story excerpts and 
                                             identify what makes them effective (or not).
                                         </p>
-                                        <RiseEmbed moduleId="3.1" />
+                                        <a href={riseModules['3.1']} target="_blank" rel="noopener noreferrer" className="rise-module-link">Launch Module</a>
                                     </div>
 
                                     {/* 3.2 Rise Module */}
@@ -638,7 +598,7 @@
                                             What makes a story feel satisfying and complete? You're already familiar with the fundamental 
                                             arc of a story. Now, it's time to explore some of the most common and effective story structures.
                                         </p>
-                                        <RiseEmbed moduleId="3.2" />
+                                        <a href={riseModules['3.2']} target="_blank" rel="noopener noreferrer" className="rise-module-link">Launch Module</a>
                                     </div>
 
                                     {/* 3.3 Workbook-only */}
@@ -721,7 +681,7 @@
                                             In this lesson, you'll explore five key elements of storytelling style: voice, tone, framing, 
                                             emotional rhythm, and flow.
                                         </p>
-                                        <RiseEmbed moduleId="4.1" />
+                                        <a href={riseModules['4.1']} target="_blank" rel="noopener noreferrer" className="rise-module-link">Launch Module</a>
                                     </div>
 
                                     {/* 4.2 Rise Module */}
@@ -732,7 +692,7 @@
                                             tell requires a raw, confessional quality. This lesson will help you reflect on how to share with 
                                             authenticity while maintaining boundaries.
                                         </p>
-                                        <RiseEmbed moduleId="4.2" />
+                                        <a href={riseModules['4.2']} target="_blank" rel="noopener noreferrer" className="rise-module-link">Launch Module</a>
                                     </div>
 
                                     {/* 4.3 Workbook-only */}
