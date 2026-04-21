@@ -11,15 +11,66 @@ interface OpenLessons {
 }
 
 const riseModules: { [key: string]: string } = {
-  '1.2': 'https://360.articulate.com/review/content/c7e1d116-ddd6-4738-abbd-caf5540ca806/review',
-  '1.3': 'https://360.articulate.com/review/content/3c882266-dbf3-4d08-9d63-d1eda5e23546/review',
-  '1.4': 'https://360.articulate.com/review/content/2c3ac20b-7114-4c4c-99d6-7b7c73dcf3ae/review',
-  '2.1': 'https://360.articulate.com/review/content/1a96ffbe-7af7-4057-acd4-6937bd1e327c/review',
-  '2.2': 'https://360.articulate.com/review/content/eef3663f-b051-4414-8863-c713871f85c1/review',
-  '3.1': 'https://360.articulate.com/review/content/00c63d58-d9ac-4469-8859-7d9bae8af125/review',
-  '3.2': 'https://360.articulate.com/review/content/0cab3366-d1c6-4ab3-9e1b-5253d05b9db9/review',
-  '4.1': 'https://360.articulate.com/review/content/b838ecf0-8b11-456c-8748-9d178d6e229b/review',
-  '4.2': 'https://360.articulate.com/review/content/9cf84b18-75ab-4f9e-9df7-5a064ba6eea3/review',
+  '1.2': 'https://share.articulate.com/Qitprp85FJyZp3JSqEdnA',
+  '1.3': 'https://share.articulate.com/os9ibkns5dTA0GZJaNgpo',
+  '1.4': 'https://share.articulate.com/XDIupFSqGP-L9oCvYmV6A',
+  '2.1': 'https://share.articulate.com/EKG15i706sSjZ9P_hfJEb',
+  '2.2': 'https://share.articulate.com/bj557-1A4-m5imPi3UOQU',
+  '3.1': 'https://share.articulate.com/P1iio7DXgYIm23Ga3SSfs',
+  '3.2': 'https://share.articulate.com/PpTnd-_qr0JYWR8gJNrB6',
+  '4.1': 'https://share.articulate.com/_X1IjDfkj3R1iPQqe829m',
+  '4.2': 'https://share.articulate.com/wD-IaoZCjgZddATO6woni',
+}
+
+function RiseModule({ moduleId }: { moduleId: string }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const url = riseModules[moduleId]
+
+  if (!isOpen) {
+    return (
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className="rise-module-launch"
+      >
+        Launch Module
+      </button>
+    )
+  }
+
+  return (
+    <div className="rise-embed">
+      <div className="rise-embed-toolbar">
+        <span className="rise-embed-label">Module {moduleId}</span>
+        <div className="rise-embed-actions">
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rise-embed-action"
+          >
+            Open full screen ↗
+          </a>
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="rise-embed-close"
+          >
+            ✕ Close
+          </button>
+        </div>
+      </div>
+      <div className="rise-embed-frame-wrapper">
+        <iframe
+          src={url}
+          title={`Rise Module ${moduleId}`}
+          className="rise-embed-frame"
+          allowFullScreen
+          loading="lazy"
+        />
+      </div>
+    </div>
+  )
 }
 
 export default function Workbook() {
@@ -142,9 +193,7 @@ export default function Workbook() {
                   <strong> strategic</strong> storytelling and invites you to consider which of these outcomes
                   matters most to your current goals.
                 </p>
-                <a href={riseModules['1.2']} target="_blank" rel="noopener noreferrer" className="rise-module-link">
-                  Launch Module (opens in new tab)
-                </a>
+                <RiseModule moduleId="1.2" />
               </div>
 
               {/* 1.3 Rise Module */}
@@ -155,9 +204,7 @@ export default function Workbook() {
                   or experiences of others. In this lesson, you'll look more closely at the ways stories shape
                   our understanding of ourselves.
                 </p>
-                <a href={riseModules['1.3']} target="_blank" rel="noopener noreferrer" className="rise-module-link">
-                  Launch Module (opens in new tab)
-                </a>
+                <RiseModule moduleId="1.3" />
               </div>
 
               {/* 1.4 Rise Module + Workbook */}
@@ -168,9 +215,7 @@ export default function Workbook() {
                   to tell. In this lesson, you'll review prompts, reflect on your goals, and choose a story idea
                   that you'll carry through the rest of the course.
                 </p>
-                <a href={riseModules['1.4']} target="_blank" rel="noopener noreferrer" className="rise-module-link">
-                  Launch Module (opens in new tab)
-                </a>
+                <RiseModule moduleId="1.4" />
                 <div className="workbook-activity">
                   <h4>📝 Workbook Activity</h4>
                   <div className="form-group">
@@ -219,9 +264,7 @@ export default function Workbook() {
                   you'll discover what happens in the brain when we hear a story and why narrative activates attention,
                   memory, empathy, and trust in ways that data alone cannot.
                 </p>
-                <a href={riseModules['2.1']} target="_blank" rel="noopener noreferrer" className="rise-module-link">
-                  Launch Module (opens in new tab)
-                </a>
+                <RiseModule moduleId="2.1" />
               </div>
 
               {/* 2.2 Rise Module */}
@@ -231,9 +274,7 @@ export default function Workbook() {
                   Now that you understand how stories affect the brain, this lesson will walk you through four
                   techniques to apply that knowledge and make your stories more engaging and persuasive.
                 </p>
-                <a href={riseModules['2.2']} target="_blank" rel="noopener noreferrer" className="rise-module-link">
-                  Launch Module (opens in new tab)
-                </a>
+                <RiseModule moduleId="2.2" />
               </div>
 
               {/* 2.3 Workbook-only */}
@@ -279,9 +320,7 @@ export default function Workbook() {
                   How do you know if a story is working? In this lesson, you'll analyze real story excerpts and
                   identify what makes them effective (or not).
                 </p>
-                <a href={riseModules['3.1']} target="_blank" rel="noopener noreferrer" className="rise-module-link">
-                  Launch Module (opens in new tab)
-                </a>
+                <RiseModule moduleId="3.1" />
               </div>
 
               {/* 3.2 Rise Module */}
@@ -291,9 +330,7 @@ export default function Workbook() {
                   What makes a story feel satisfying and complete? You're already familiar with the fundamental
                   arc of a story. Now, it's time to explore some of the most common and effective story structures.
                 </p>
-                <a href={riseModules['3.2']} target="_blank" rel="noopener noreferrer" className="rise-module-link">
-                  Launch Module (opens in new tab)
-                </a>
+                <RiseModule moduleId="3.2" />
               </div>
 
               {/* 3.3 Workbook-only */}
@@ -385,9 +422,7 @@ export default function Workbook() {
                   In this lesson, you'll explore five key elements of storytelling style: voice, tone, framing,
                   emotional rhythm, and flow.
                 </p>
-                <a href={riseModules['4.1']} target="_blank" rel="noopener noreferrer" className="rise-module-link">
-                  Launch Module (opens in new tab)
-                </a>
+                <RiseModule moduleId="4.1" />
               </div>
 
               {/* 4.2 Rise Module */}
@@ -398,9 +433,7 @@ export default function Workbook() {
                   tell requires a raw, confessional quality. This lesson will help you reflect on how to share with
                   authenticity while maintaining boundaries.
                 </p>
-                <a href={riseModules['4.2']} target="_blank" rel="noopener noreferrer" className="rise-module-link">
-                  Launch Module (opens in new tab)
-                </a>
+                <RiseModule moduleId="4.2" />
               </div>
 
               {/* 4.3 Workbook-only */}
