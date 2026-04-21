@@ -1,11 +1,53 @@
-import { kv } from '@vercel/kv'
+import { createClient, RedisClientType } from 'redis'
 
-const TOKEN_EXPIRY = 15 * 60 * 1000 // 15 minutes in milliseconds
+/**
+ * Redis client wrapper for Storytelling for Impact.
+ *
+ * Vercel's current Redis product exposes a single REDIS_URL env var and
+ * expects the node-redis package. We previously used @vercel/kv, which is
+ * deprecated for this provider. All function signatures are preserved so
+ * the API routes don't need to change.
+ *
+ * Serverless caveat: Vercel's functions are short-lived lambdas, but multiple
+ * invocations can reuse the same warm process. We cache a single connected
+ * client at module scope so we only pay the TCP + TLS handshake once per
+ * instance.
+ */
+
+let clientPromise: Promise<RedisClientType> | null = null
+
+function getClient(): Promise<RedisClientType> {
+  if (!clientPromise) {
+    const url = process.env.REDIS_URL
+    if (!url) {
+      throw new Error(
+        'REDIS_URL is not set. Connect a Redis database in the Vercel dashboard (Storage → Redis → Connect Project), then redeploy.'
+      )
+    }
+
+    const client: RedisClientType = createClient({ url })
+
+    // Swallow runtime errors so a blip doesn't crash the lambda — we'll
+    // surface failures at the per-call try/catch layer instead.
+    client.on('error', (err) => {
+      console.error('Redis client error:', err)
+    })
+
+    clientPromise = client.connect().then(() => client)
+  }
+  return clientPromise
+}
+
+// ---------------------------------------------------------------------------
+// Magic-link auth (production /auth flow)
+// ---------------------------------------------------------------------------
+
+const TOKEN_EXPIRY_SECONDS = 15 * 60 // 15 minutes
 
 export async function storeMagicLink(token: string, email: string): Promise<void> {
   try {
-    // Store the token with the email for verification
-    await kv.setex(`magic_link:${token}`, Math.ceil(TOKEN_EXPIRY / 1000), email)
+    const redis = await getClient()
+    await redis.set(`magic_link:${token}`, email, { EX: TOKEN_EXPIRY_SECONDS })
   } catch (error) {
     console.error('Failed to store magic link:', error)
     throw new Error('Failed to store authentication token')
@@ -14,8 +56,8 @@ export async function storeMagicLink(token: string, email: string): Promise<void
 
 export async function getMagicLinkEmail(token: string): Promise<string | null> {
   try {
-    const email = await kv.get(`magic_link:${token}`)
-    return email as string | null
+    const redis = await getClient()
+    return await redis.get(`magic_link:${token}`)
   } catch (error) {
     console.error('Failed to retrieve magic link:', error)
     return null
@@ -24,7 +66,8 @@ export async function getMagicLinkEmail(token: string): Promise<string | null> {
 
 export async function deleteMagicLink(token: string): Promise<void> {
   try {
-    await kv.del(`magic_link:${token}`)
+    const redis = await getClient()
+    await redis.del(`magic_link:${token}`)
   } catch (error) {
     console.error('Failed to delete magic link:', error)
   }
@@ -32,8 +75,9 @@ export async function deleteMagicLink(token: string): Promise<void> {
 
 export async function storeSession(token: string, email: string): Promise<void> {
   try {
-    // Store session for 30 days
-    await kv.setex(`session:${token}`, 30 * 24 * 60 * 60, email)
+    const redis = await getClient()
+    // 30-day session
+    await redis.set(`session:${token}`, email, { EX: 30 * 24 * 60 * 60 })
   } catch (error) {
     console.error('Failed to store session:', error)
     throw new Error('Failed to create session')
@@ -42,8 +86,8 @@ export async function storeSession(token: string, email: string): Promise<void> 
 
 export async function getSessionEmail(token: string): Promise<string | null> {
   try {
-    const email = await kv.get(`session:${token}`)
-    return email as string | null
+    const redis = await getClient()
+    return await redis.get(`session:${token}`)
   } catch (error) {
     console.error('Failed to retrieve session:', error)
     return null
@@ -52,7 +96,8 @@ export async function getSessionEmail(token: string): Promise<string | null> {
 
 export async function deleteSession(token: string): Promise<void> {
   try {
-    await kv.del(`session:${token}`)
+    const redis = await getClient()
+    await redis.del(`session:${token}`)
   } catch (error) {
     console.error('Failed to delete session:', error)
   }
@@ -61,12 +106,9 @@ export async function deleteSession(token: string): Promise<void> {
 // ---------------------------------------------------------------------------
 // Demo-mode helpers
 //
-// The demo flow does NOT use a magic-link email round-trip. Instead, the
-// landing page form submits name/org/email, and on success we:
-//   1. Append the lead to a running KV list (`demo:leads`) for James/Simon to
-//      review later if they want a full list.
-//   2. Create a short-lived session token tied to that lead so the workbook
-//      can verify the user came through the gate.
+// See the /api/demo/signup route for how these are used. Unlike the
+// magic-link flow, the demo does NOT require email verification — the form
+// submission itself is the gate.
 // ---------------------------------------------------------------------------
 
 const DEMO_SESSION_EXPIRY_SECONDS = 24 * 60 * 60 // 24 hours
@@ -80,11 +122,12 @@ export interface StoredDemoLead {
 
 export async function storeDemoLead(lead: StoredDemoLead): Promise<void> {
   try {
-    // lpush keeps newest first; no TTL so the full list is preserved.
-    await kv.lpush('demo:leads', JSON.stringify(lead))
+    const redis = await getClient()
+    // lPush keeps newest-first; no TTL so the full list is preserved.
+    await redis.lPush('demo:leads', JSON.stringify(lead))
   } catch (error) {
     console.error('Failed to store demo lead:', error)
-    // Non-fatal — we still want the user to be able to enter the demo.
+    // Non-fatal — we still let the visitor into the demo.
   }
 }
 
@@ -93,11 +136,10 @@ export async function storeDemoSession(
   lead: StoredDemoLead
 ): Promise<void> {
   try {
-    await kv.setex(
-      `demo_session:${token}`,
-      DEMO_SESSION_EXPIRY_SECONDS,
-      JSON.stringify(lead)
-    )
+    const redis = await getClient()
+    await redis.set(`demo_session:${token}`, JSON.stringify(lead), {
+      EX: DEMO_SESSION_EXPIRY_SECONDS,
+    })
   } catch (error) {
     console.error('Failed to store demo session:', error)
     throw new Error('Failed to create demo session')
@@ -108,17 +150,14 @@ export async function getDemoSession(
   token: string
 ): Promise<StoredDemoLead | null> {
   try {
-    const raw = await kv.get(`demo_session:${token}`)
+    const redis = await getClient()
+    const raw = await redis.get(`demo_session:${token}`)
     if (!raw) return null
-    // Vercel KV may return either a string or an already-parsed object
-    if (typeof raw === 'string') {
-      try {
-        return JSON.parse(raw) as StoredDemoLead
-      } catch {
-        return null
-      }
+    try {
+      return JSON.parse(raw) as StoredDemoLead
+    } catch {
+      return null
     }
-    return raw as StoredDemoLead
   } catch (error) {
     console.error('Failed to retrieve demo session:', error)
     return null
