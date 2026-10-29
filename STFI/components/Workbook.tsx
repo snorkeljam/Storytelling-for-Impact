@@ -26,6 +26,8 @@ function RiseModule({ moduleId }: { moduleId: string }) {
   const [isOpen, setIsOpen] = useState(false)
   const url = riseModules[moduleId]
 
+  if (!url) return null
+
   if (!isOpen) {
     return (
       <button

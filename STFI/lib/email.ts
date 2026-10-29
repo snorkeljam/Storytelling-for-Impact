@@ -27,7 +27,6 @@ async function sendWithResend(email: string, magicLink: string): Promise<void> {
     return
   }
 
-  const appName = 'Storytelling for Impact'
   const htmlContent = `
 <!DOCTYPE html>
 <html>
