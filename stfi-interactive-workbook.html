@@ -302,7 +302,7 @@
     <header class="header">
         <div class="container">
             <h1>Storytelling for Impact</h1>
-            <p>Interactive Workbook Demonstration</p>
+            <p>Interactive Workbook</p>
         </div>
     </header>
 
@@ -329,7 +329,7 @@
                 policy or culture, the right story told well can connect, inspire, and move people to act.
             </p>
             <p style="margin-top: 1rem; font-weight: 600; color: #E66C5C;">
-                ⚠️ Note: This is a demonstration version. Your work will not be saved when you close your browser.
+                Your answers save automatically in this browser on this device. Use the same browser to come back and keep working.
             </p>
         </div>
 
@@ -355,7 +355,7 @@
                         </p>
                         <div class="workbook-activity">
                             <h4>📝 Workbook Activity</h4>
-                            <div class="disclaimer">⚠️ This is a demonstration. Your work will not be saved.</div>
+                            <div class="disclaimer">Your answers save automatically in this browser.</div>
                             <div class="form-group">
                                 <label for="f-1-1">Reflect: What makes a story memorable to you?</label>
                                 <textarea id="f-1-1" placeholder="Type your thoughts here..."></textarea>
@@ -393,7 +393,7 @@
                         <a href="https://share.articulate.com/XDIupFSqGP-L9oCvYmV6A" target="_blank" rel="noopener noreferrer" class="rise-module-link">Launch Module</a>
                         <div class="workbook-activity">
                             <h4>📝 Workbook Activity</h4>
-                            <div class="disclaimer">⚠️ This is a demonstration. Your work will not be saved.</div>
+                            <div class="disclaimer">Your answers save automatically in this browser.</div>
                             <div class="form-group">
                                 <label for="f-1-4-topic">"I want to tell a story about..."</label>
                                 <input type="text" id="f-1-4-topic" placeholder="The topic">
@@ -449,7 +449,7 @@
                         </p>
                         <div class="workbook-activity">
                             <h4>📝 Workbook Activity</h4>
-                            <div class="disclaimer">⚠️ This is a demonstration. Your work will not be saved.</div>
+                            <div class="disclaimer">Your answers save automatically in this browser.</div>
                             <div class="form-group">
                                 <label for="f-2-3">What specific change or action do you hope your story will inspire?</label>
                                 <textarea id="f-2-3" placeholder="Type your response here..."></textarea>
@@ -500,7 +500,7 @@
                         </p>
                         <div class="workbook-activity">
                             <h4>📝 Workbook Activity: Three-Act Storyboard</h4>
-                            <div class="disclaimer">⚠️ This is a demonstration. Your work will not be saved.</div>
+                            <div class="disclaimer">Your answers save automatically in this browser.</div>
                             <table class="table-input">
                                 <thead>
                                     <tr>
@@ -570,7 +570,7 @@
                         </p>
                         <div class="workbook-activity">
                             <h4>📝 Workbook Activity: Audience Adaptation</h4>
-                            <div class="disclaimer">⚠️ This is a demonstration. Your work will not be saved.</div>
+                            <div class="disclaimer">Your answers save automatically in this browser.</div>
                             <div class="form-group">
                                 <label for="f-4-3-audience1">Audience #1: Who are they?</label>
                                 <input type="text" id="f-4-3-audience1" placeholder="E.g., Senior leadership, students, peers...">
@@ -589,7 +589,7 @@
         <div class="conclusion-section">
             <h2>Thank You</h2>
             <p style="margin-top: 1rem; font-size: 1.1rem;">
-                Thank you for exploring this interactive demonstration of Storytelling for Impact.
+                Thank you for exploring this interactive workbook for Storytelling for Impact.
                 We hope it has helped you discover new ways to shape, share, and apply your own stories.
             </p>
             <p style="margin-top: 1rem;">
@@ -630,6 +630,27 @@
                 el.textContent = visited ? '✓' : num;
             });
         }
+
+        // Auto-save workbook answers to this browser
+        var STORAGE_KEY = 'stfi_workbook_data';
+        var fields = document.querySelectorAll('textarea[id^="f-"], input[id^="f-"]');
+
+        function loadAnswers() {
+            var saved = {};
+            try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch (e) {}
+            fields.forEach(function(el) {
+                if (saved[el.id]) el.value = saved[el.id];
+            });
+        }
+
+        function saveAnswers() {
+            var data = {};
+            fields.forEach(function(el) { data[el.id] = el.value; });
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+        }
+
+        fields.forEach(function(el) { el.addEventListener('input', saveAnswers); });
+        loadAnswers();
     </script>
 
 </body>
